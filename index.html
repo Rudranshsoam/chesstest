@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chessmate</title>
+<style>
+:root{--bg:#10151d;--panel:#1a2330;--panel2:#222e3d;--text:#f3f5f7;--muted:#aab6c4;--accent:#72d6b0;--light:#e8edf1;--dark:#719b8a;--select:#f6d365;--move:#82d9a5;--danger:#ef7b7b}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at top,#202d3b,#10151d 62%);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;display:flex;justify-content:center;padding:24px}
+.app{width:min(1100px,100%)}header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px}.brand{display:flex;align-items:center;gap:12px}.logo{width:48px;height:48px;border-radius:15px;background:var(--accent);color:#13221e;display:grid;place-items:center;font-size:29px;box-shadow:0 8px 24px #0004}.eyebrow{font-size:11px;letter-spacing:.2em;color:var(--accent);font-weight:800}.brand h1{margin:2px 0 0;font-size:clamp(22px,4vw,31px);letter-spacing:-.04em}.layout{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(260px,.7fr);gap:22px;align-items:start}.board-card,.side-card{background:linear-gradient(145deg,#1c2734,#17202b);border:1px solid #ffffff12;border-radius:22px;box-shadow:0 20px 55px #0003}.board-card{padding:16px}.playerbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:2px 4px 12px}.playerbar.bottom{padding:12px 4px 2px}.player{display:flex;align-items:center;gap:10px;min-width:0}.avatar{width:34px;height:34px;display:grid;place-items:center;border-radius:11px;background:var(--panel2);font-size:19px}.player strong{display:block;font-size:13px}.player small{display:block;color:var(--muted);font-size:11px;margin-top:2px}.turn-pill{border:1px solid #ffffff17;border-radius:99px;padding:6px 10px;font-size:11px;color:var(--muted);white-space:nowrap}.turn-pill.active{color:var(--accent);border-color:#72d6b055;background:#72d6b012}.board{display:grid;grid-template-columns:repeat(8,1fr);aspect-ratio:1;overflow:hidden;border-radius:9px;border:3px solid #0b1016;touch-action:manipulation}.square{position:relative;display:grid;place-items:center;border:0;padding:0;min-width:0;cursor:pointer;aspect-ratio:1;font-family:inherit}.square.light{background:var(--light)}.square.dark{background:var(--dark)}.square.selected{box-shadow:inset 0 0 0 4px var(--select);z-index:1}.square.lastmove:before{content:"";position:absolute;inset:0;background:#f6d36555}.square.turn-piece{box-shadow:inset 0 0 0 2px #f6d36570}.square.turn-piece:before{content:"";position:absolute;inset:0;background:#ffe89a30;pointer-events:none}.square .piece{position:relative;z-index:2;font-size:clamp(24px,5.1vw,55px);line-height:1;filter:drop-shadow(0 2px 1px #0003);user-select:none}.piece.white{color:#fffdf5;text-shadow:0 1px 2px #202830,0 0 2px #202830}.piece.black{color:#17212b;text-shadow:0 1px 1px #ffffff88}.square.legal:after{content:"";position:absolute;width:23%;height:23%;border-radius:50%;background:#172a28a6;z-index:1}.square.capture:after{content:"";position:absolute;inset:5%;border:4px solid #c84e4e99;border-radius:50%;z-index:1}.coord{position:absolute;font-size:10px;font-weight:800;z-index:3;opacity:.75;pointer-events:none}.coord.file{right:4px;bottom:2px}.coord.rank{left:4px;top:2px}.light .coord{color:#466557}.dark .coord{color:#f1f7f3}.board-hint{font-size:11px;color:var(--muted);text-align:center;margin-top:12px}.side-card{padding:20px}.statusbox{background:#111923;border:1px solid #ffffff0c;border-radius:15px;padding:16px;margin-bottom:18px}.status-label{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:800}.status-title{font-size:21px;font-weight:800;letter-spacing:-.03em;margin:7px 0 5px}.status-desc{font-size:12px;line-height:1.5;color:var(--muted)}.actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:20px}.btn{border:1px solid #ffffff17;background:var(--panel2);color:var(--text);border-radius:12px;padding:11px 12px;font-weight:750;font-size:12px;cursor:pointer;transition:transform .15s,background .15s}.btn:hover{background:#304154;transform:translateY(-1px)}.btn.primary{background:var(--accent);color:#10221b;border-color:transparent}.btn.primary:hover{background:#8be4c3}.btn:focus-visible,.square:focus-visible{outline:3px solid var(--select);outline-offset:2px}.section-head{display:flex;justify-content:space-between;align-items:center;margin:0 0 10px}.section-head h2{font-size:13px;margin:0}.section-head span{font-size:11px;color:var(--muted)}.moves{height:240px;overflow:auto;background:#111923;border-radius:13px;padding:8px}.move-row{display:grid;grid-template-columns:30px 1fr 1fr;gap:5px;padding:8px 7px;border-radius:7px;font-size:12px}.move-row:nth-child(odd){background:#ffffff05}.move-no{color:var(--muted)}.move-san{font-weight:700}.empty{padding:18px 10px;color:var(--muted);text-align:center;font-size:12px}.footer-note{font-size:11px;line-height:1.55;color:var(--muted);margin-top:16px}.promotion-overlay{position:fixed;inset:0;background:#080d14cc;display:none;align-items:center;justify-content:center;padding:20px;z-index:10}.promotion-overlay.show{display:flex}.promotion-overlay{z-index:20}.promotion-box select{background:#222e3d;color:#f3f5f7;border:1px solid #ffffff25}.promotion-box option{background:#222e3d;color:#f3f5f7}.promotion-box{width:min(340px,100%);background:var(--panel);border:1px solid #ffffff20;border-radius:20px;padding:22px;box-shadow:0 20px 70px #0008}.promotion-box h2{margin:0 0 6px;font-size:20px}.promotion-box p{margin:0 0 18px;color:var(--muted);font-size:13px}.promotion-options{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.promo{font-size:39px;padding:12px 2px;border-radius:12px;border:1px solid #ffffff18;background:var(--panel2);cursor:pointer}.promo:hover{border-color:var(--accent)}.toast{color:var(--accent);font-size:11px;min-height:16px;margin-top:10px}
+.clock-panel{background:#111923;border:1px solid #ffffff10;border-radius:14px;padding:12px;margin:-5px 0 15px}.clock-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:9px}.clock-head strong{font-size:12px}.clock-head span{font-size:10px;color:var(--muted)}.clock-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px}.clock-fields label{display:grid;gap:5px;font-size:10px;color:var(--muted);font-weight:700}.clock-fields select,.clock-fields input{min-width:0;width:100%;background:var(--panel2);color:var(--text);border:1px solid #ffffff20;border-radius:8px;padding:8px;font:inherit;font-size:12px}.clock-readouts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.clock-time{background:#202b38;border:1px solid #ffffff12;border-radius:10px;padding:8px 10px;display:flex;justify-content:space-between;align-items:center;gap:6px}.clock-time.active{border-color:var(--accent);box-shadow:inset 0 0 0 1px #72d6b033}.clock-time strong{font-variant-numeric:tabular-nums;font-size:clamp(17px,2.4vw,22px);letter-spacing:.02em}.clock-time small{font-size:10px;color:var(--muted)}.clock-time.low strong{color:#ff8e8e}.clock-fields .custom-minutes{display:none}.clock-fields .custom-minutes.show{display:grid}
+@media(max-width:760px){body{padding:12px}.layout{grid-template-columns:1fr;gap:14px}.board-card{padding:10px;border-radius:17px}.side-card{padding:16px;border-radius:17px}.board{border-width:2px}.square .piece{font-size:clamp(26px,10vw,55px)}.playerbar{padding:1px 2px 9px}.playerbar.bottom{padding:9px 2px 1px}.avatar{width:30px;height:30px}.moves{height:170px}.statusbox{padding:13px;margin-bottom:13px}.status-title{font-size:19px}header{margin-bottom:14px}.logo{width:42px;height:42px}.footer-note{margin-top:12px}}
+@media(max-width:380px){body{padding:6px}.board-card{padding:6px}.square .piece{font-size:clamp(21px,8.5vw,34px)}.turn-pill{font-size:10px;padding:5px 7px}.player strong{font-size:12px}.player small{font-size:10px}.side-card{padding:12px}.actions{gap:7px}.btn{padding:10px 8px}}
+@media(max-width:760px){body{min-height:100dvh;padding:clamp(6px,2vw,12px)}.app{width:100%;max-width:560px}.board{width:100%;max-width:min(100%,calc(100vw - 44px));margin-inline:auto}.square .piece{font-size:clamp(22px,8.5vw,48px)}.side-card{padding:13px}.footer-note{margin-top:8px}}
+
+/* Desktop: keep the complete game visible in one viewport without page scrolling. */
+@media(min-width:761px){
+  html,body{height:100%;height:100dvh}
+  body{padding:16px;overflow:hidden;min-height:0}
+  .app{height:100%;min-height:0;width:min(1250px,100%)}
+  header{height:48px;margin-bottom:12px}
+  .layout{height:calc(100% - 60px);min-height:0;grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr);gap:18px}
+  .board-card{height:100%;min-height:0;padding:12px;display:flex;flex-direction:column;justify-content:space-between;gap:8px}
+  .playerbar{flex:0 0 auto;padding:0 2px 2px}
+  .playerbar.bottom{padding:2px 2px 0}
+  .board{width:min(100%,calc(100dvh - 230px));max-height:calc(100dvh - 230px);flex:0 1 auto;align-self:center;aspect-ratio:1}
+  .board-hint{flex:0 0 auto;margin-top:0;font-size:10px}
+  .side-card{height:100%;min-height:0;overflow:hidden;padding:16px;display:flex;flex-direction:column}
+  .statusbox{flex:0 0 auto;padding:13px;margin-bottom:12px}
+  .status-title{font-size:clamp(17px,2.2vh,21px);margin:5px 0 4px}
+  .status-desc{font-size:clamp(11px,1.55vh,12px)}
+  .actions{flex:0 0 auto;gap:8px;margin-bottom:14px}
+  .btn{padding:clamp(8px,1.4vh,11px) 10px}
+  .section-head{flex:0 0 auto;margin-bottom:8px}
+  .moves{height:clamp(100px,calc(100dvh - 610px),240px);flex:0 1 auto;min-height:100px}
+  .footer-note{flex:0 0 auto;font-size:10px;line-height:1.4;margin-top:10px}
+}
+
+/* Layout/contrast repair: keep the whole board visible and make white pieces readable. */
+.board{width:min(100%,72vh);height:auto;aspect-ratio:1;flex:0 0 auto;border:1px solid #344252;box-shadow:0 0 0 1px #0b1016;}
+.square{overflow:visible;aspect-ratio:1;}
+/* Keep the moving piece above neighboring squares instead of clipping it inside its destination tile. */
+.square.animating-piece{z-index:12 !important;overflow:visible;}
+.square.animating-piece .piece{z-index:20;pointer-events:none;}
+.square .piece{display:block;font-size:clamp(20px, min(6.2vw, 6.8vh), 54px);line-height:1.05;transform:translateY(-1px);}
+.piece.white{color:#fffef8;-webkit-text-stroke:1px #374151;text-shadow:0 1px 2px #10151d,0 0 3px #10151d;}
+.square.turn-piece:before{z-index:0;background:#ffe89a24;}
+.square.turn-piece{box-shadow:inset 0 0 0 1.5px #f6d36555;}
+.square.selected{box-shadow:inset 0 0 0 3px var(--select);}
+@media(min-width:761px){
+  html,body{height:auto;min-height:100%;overflow:auto;}
+  body{padding:16px;}
+  .app{height:auto;min-height:0;}
+  header{height:auto;min-height:48px;}
+  .layout{height:auto;min-height:0;grid-template-columns:minmax(0,1.15fr) minmax(280px,.85fr);align-items:start;}
+  .board-card{height:auto;min-height:0;justify-content:flex-start;gap:8px;}
+  .board{width:min(100%,calc(100dvh - 220px));max-height:none;}
+  .side-card{height:auto;min-height:0;overflow:visible;}
+  .moves{height:clamp(100px,28vh,240px);min-height:100px;}
+}
+@media(max-width:760px){
+  body{overflow-x:hidden;}
+  .app{max-width:560px;}
+  .board-card{width:100%;min-width:0;}
+  .board{width:min(100%,calc(100vw - 40px));max-width:100%;}
+  .square .piece{font-size:clamp(20px, min(8.5vw, 10.5vw), 48px);}
+  .layout{min-width:0;}
+}
+
+
+.check-popup{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:50;pointer-events:none;opacity:0;visibility:hidden}
+.check-popup.show{visibility:visible;animation:checkPopupLife 1.4s ease-out both}
+.check-popup-card{padding:18px 28px;border-radius:18px;background:linear-gradient(145deg,#a92e35,#651c25);border:2px solid #ffb0a7;color:#fff8f2;font-size:clamp(22px,5vw,38px);font-weight:950;letter-spacing:.06em;text-align:center;box-shadow:0 18px 70px #0009;text-shadow:0 2px 3px #0005;max-width:calc(100vw - 32px)}
+@keyframes checkPopupLife{0%{opacity:0;transform:scale(.92)}10%{opacity:1;transform:scale(1)}72%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.03);visibility:hidden}}
+
+/* Match stats */
+.stats-panel{background:#111923;border:1px solid #ffffff0c;border-radius:14px;padding:12px;margin:0 0 14px}
+.stats-heading{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px;margin-bottom:10px}
+.stats-heading span{color:#f6d365;font-size:11px;font-weight:800}.stats-toggle{display:flex;align-items:center;gap:7px;border:0;background:transparent;color:#f6d365;font:inherit;font-size:11px;font-weight:800;cursor:pointer;padding:4px 2px;border-radius:6px}.stats-toggle:focus-visible{outline:2px solid var(--select);outline-offset:2px}.stats-toggle .arrow{display:inline-block;transition:transform .2s ease}.stats-panel.expanded .stats-toggle .arrow{transform:rotate(180deg)}.stats-panel.expanded .stats-grid,.stats-panel.expanded .stats-foot{display:block}.stats-details[hidden]{display:none!important}.stats-panel.expanded .stats-grid{margin-top:12px}.stats-panel.expanded .stats-foot{margin-top:8px}.stats-panel.expanded{padding-bottom:15px}.history-section.hidden{display:none}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stats-grid>div{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;background:#ffffff06;border-radius:10px}
+.stats-grid strong{font-size:21px;line-height:1.2}
+.stats-grid span,.stats-foot{font-size:10px;color:var(--muted)}
+.stats-foot{margin-top:8px;line-height:1.4}
+/* Piece motion and gentle move feedback */
+.piece.move-arrive{will-change:transform}
+@keyframes pieceGlide{from{transform:translate(var(--move-x,0px),var(--move-y,0px)) scale(1.04)}to{transform:translate(0,0) scale(1)}}
+.square.capture .piece{animation:capturePulse .2s ease-out}
+@keyframes capturePulse{0%{transform:scale(.88)}100%{transform:scale(1)}}
+/* Checkmate / result celebration */
+.result-overlay{background:radial-gradient(circle at center,#27384beF,#070b12f2);backdrop-filter:blur(5px)}
+.result-box{position:relative;overflow:hidden;text-align:center;border-color:#f6d36577;box-shadow:0 25px 100px #000b;animation:resultEnter .5s cubic-bezier(.15,.85,.25,1.2) both}
+.result-emblem{width:76px;height:76px;margin:0 auto 10px;display:grid;place-items:center;border-radius:24px;background:linear-gradient(145deg,#f6d365,#d9a83e);color:#1b2430;font-size:48px;box-shadow:0 8px 35px #f6d36544;animation:emblemPulse 1.8s ease-in-out infinite}
+.result-kicker{font-size:10px;font-weight:900;letter-spacing:.22em;color:#f6d365;margin-bottom:7px}
+.result-box h2{font-size:clamp(24px,5vw,32px);margin:0 0 8px}
+.result-box p{font-size:14px;line-height:1.6}
+.result-confetti{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.result-confetti i{position:absolute;top:-25px;font-style:normal;color:#f6d365;font-size:22px;animation:confettiFall 2.8s linear infinite}
+.result-confetti i:nth-child(1){left:8%;animation-delay:0s}.result-confetti i:nth-child(2){left:24%;animation-delay:.8s;color:#72d6b0}.result-confetti i:nth-child(3){left:70%;animation-delay:.3s}.result-confetti i:nth-child(4){left:88%;animation-delay:1.1s;color:#ef7b7b}.result-confetti i:nth-child(5){left:52%;animation-delay:1.5s;color:#72d6b0}.result-confetti i:nth-child(6){left:38%;animation-delay:2s}
+@keyframes resultEnter{from{opacity:0;transform:translateY(18px) scale(.88)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes emblemPulse{0%,100%{transform:scale(1) rotate(-3deg)}50%{transform:scale(1.06) rotate(3deg)}}
+@keyframes confettiFall{0%{transform:translateY(-15px) rotate(0);opacity:0}12%{opacity:1}85%{opacity:.8}100%{transform:translateY(420px) rotate(240deg);opacity:0}}
+@media(prefers-reduced-motion:reduce){.result-box,.result-emblem,.result-confetti i{animation:none!important}}
+
+
+/* Replay controls */
+/* Replay modal: fit the complete board and controls on small screens. */
+.replay-overlay{z-index:30;padding:12px;overflow-y:auto;align-items:center;}
+.replay-overlay .promotion-box{width:min(540px,96vw);max-width:96vw;max-height:calc(100dvh - 24px);overflow-y:auto;padding:clamp(16px,2.5vw,24px);}
+.replay-board-wrap{width:min(100%,440px);margin:12px auto;}
+.replay-board-wrap .board{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));grid-template-rows:repeat(8,minmax(0,1fr));width:100%;height:auto;max-width:100%;aspect-ratio:1;flex:none;gap:0;border:2px solid #0b1016;border-radius:7px;overflow:hidden;box-shadow:none;}
+.replay-board-wrap .square{width:100%;height:100%;min-width:0;min-height:0;aspect-ratio:auto;overflow:hidden;border:0;margin:0;padding:0;box-shadow:none;}
+.replay-board-wrap .square:before,.replay-board-wrap .square:after{display:none!important;}
+.replay-board-wrap .square .piece{font-size:clamp(19px,5.8vw,40px);line-height:1;transform:none;}
+.replay-controls{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:10px;}
+.replay-controls .btn{padding:9px 10px;min-width:0;}
+.replay-count{font-size:11px;color:var(--muted);white-space:nowrap;}
+@media(max-height:620px){.replay-overlay{align-items:flex-start}.replay-overlay .promotion-box{margin:auto 0}.replay-board-wrap{width:min( min(440px, calc(100vw - 56px)), calc(100dvh - 230px));}.replay-overlay .promotion-box h2{font-size:18px}.replay-overlay .promotion-box p{margin-bottom:10px}}
+@media(max-width:380px){.replay-controls{gap:4px}.replay-controls .btn{padding:8px 7px;font-size:11px}.replay-count{font-size:10px}.replay-board-wrap .square .piece{font-size:clamp(17px,6vw,24px)}}
+.result-overlay.show .result-box{animation:resultPop .42s cubic-bezier(.2,.85,.25,1.15) both}.result-overlay.show .result-emblem{animation:emblemSpin .8s ease-out both}.result-overlay.show .result-confetti i{animation-duration:1.7s}
+@keyframes resultPop{from{opacity:0;transform:translateY(18px) scale(.92)}to{opacity:1;transform:translateY(0) scale(1)}}@keyframes emblemSpin{from{transform:rotate(-22deg) scale(.45)}to{transform:rotate(0) scale(1)}}
+
+
+.theme-panel{margin-top:14px;padding:13px 14px;border:1px solid #ffffff16;border-radius:14px;background:#11192366}.theme-title{font-size:12px;font-weight:800;margin-bottom:10px}.theme-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}.theme-fields label{display:grid;gap:6px;font-size:11px;color:var(--muted);font-weight:700}.theme-select{width:100%;min-width:0;background:var(--panel2);color:var(--text);border:1px solid #ffffff22;border-radius:9px;padding:9px 8px;font:inherit;font-size:12px}.theme-select:focus-visible{outline:2px solid var(--select);outline-offset:2px}.theme-swatches{display:flex;gap:5px;margin-top:10px}.theme-swatches span{height:6px;flex:1;border-radius:8px}.board{border:0;gap:0}.square{border-radius:0!important}
+body[data-board-theme="wood"]{--light:#ead7b4;--dark:#956744;--select:#ffdf70;--move:#9ed8a5}
+body[data-board-theme="midnight"]{--light:#b9c8df;--dark:#465d83;--select:#ffd166;--move:#91e0c0}
+body[data-board-theme="lavender"]{--light:#eee7f5;--dark:#9a83b8;--select:#f7d86a;--move:#a9e3bf}
+body[data-board-theme="mono"]{--light:#e5e5e5;--dark:#777d85;--select:#f5d65b;--move:#a6d8bd}
+/* Natural, readable piece styles: avoid harsh halos and painted-looking outlines. */
+body[data-piece-theme="classic"] .square .piece,body[data-piece-theme="classic"] .replay-board-wrap .piece{filter:drop-shadow(0 1px 1px #0003)!important;-webkit-text-stroke:0!important}
+body[data-piece-theme="classic"] .square .piece.white,body[data-piece-theme="classic"] .replay-board-wrap .piece.white{color:#fffdf5!important;text-shadow:0 1px 1px #26313a!important}
+body[data-piece-theme="classic"] .square .piece.black,body[data-piece-theme="classic"] .replay-board-wrap .piece.black{color:#17212b!important;text-shadow:0 1px 0 #ffffff55!important}
+body[data-piece-theme="high-contrast"] .square .piece.white,body[data-piece-theme="high-contrast"] .replay-board-wrap .piece.white{color:#fff!important;-webkit-text-stroke:.7px #26313a!important;text-shadow:0 1px 1px #26313a!important;filter:drop-shadow(0 1px 1px #0002)!important}
+body[data-piece-theme="high-contrast"] .square .piece.black,body[data-piece-theme="high-contrast"] .replay-board-wrap .piece.black{color:#111820!important;-webkit-text-stroke:.35px #d9e0e6!important;text-shadow:none!important;filter:drop-shadow(0 1px 1px #0003)!important}
+body[data-piece-theme="soft"] .square .piece,body[data-piece-theme="soft"] .replay-board-wrap .piece{filter:drop-shadow(0 2px 2px #0004)!important;-webkit-text-stroke:0!important;text-shadow:0 1px 1px #20283055!important}
+body[data-piece-theme="soft"] .square .piece.black,body[data-piece-theme="soft"] .replay-board-wrap .piece.black{color:#202a36!important}
+body[data-piece-theme="soft"] .square .piece.white,body[data-piece-theme="soft"] .replay-board-wrap .piece.white{color:#fffef8!important}
+@media(max-width:420px){.theme-fields{grid-template-columns:1fr}.theme-panel{padding:11px}.theme-swatches{margin-top:8px}}
+
+/* Theme picker modal */
+.theme-open{margin-left:auto;flex-shrink:0;background:var(--panel2);color:var(--text);border:1px solid #72d6b055;border-radius:12px;padding:10px 18px;font-weight:800;font-size:12px;cursor:pointer}
+.theme-open:hover{background:#304154}.header-tools{display:flex;align-items:center;gap:12px}
+.theme-overlay{position:fixed;inset:0;background:#070c13d9;backdrop-filter:blur(7px);display:none;align-items:center;justify-content:center;padding:18px;z-index:50;overflow-y:auto}
+.theme-overlay.show{display:flex}.theme-dialog{width:min(760px,100%);max-height:min(90vh,900px);overflow:auto;background:var(--panel);border:1px solid #ffffff22;border-radius:22px;padding:22px;box-shadow:0 25px 90px #0009}
+.theme-dialog-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:18px}.theme-dialog h2{margin:0 0 5px;font-size:22px}.theme-dialog p{margin:0;color:var(--muted);font-size:12px}.theme-close{border:1px solid #ffffff20;background:var(--panel2);color:var(--text);border-radius:10px;padding:8px 12px;cursor:pointer}
+.theme-group-title{font-size:12px;font-weight:800;margin:18px 0 10px}.theme-gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.theme-card{border:1px solid #ffffff1c;background:#111923;border-radius:14px;padding:9px;text-align:left;color:var(--text);cursor:pointer;min-width:0}.theme-card[aria-pressed="true"]{border:2px solid var(--accent);padding:8px;box-shadow:0 0 0 2px #72d6b022}.theme-card:focus-visible{outline:3px solid var(--select);outline-offset:2px}.theme-preview{height:76px;border-radius:8px;overflow:hidden;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));grid-template-rows:repeat(8,minmax(0,1fr));border:1px solid #ffffff20;margin-bottom:9px;box-shadow:inset 0 0 0 1px #0002}.theme-preview span{display:block;background:var(--preview-light)}.theme-preview span:nth-child(16n+2),.theme-preview span:nth-child(16n+4),.theme-preview span:nth-child(16n+6),.theme-preview span:nth-child(16n+8),.theme-preview span:nth-child(16n+9),.theme-preview span:nth-child(16n+11),.theme-preview span:nth-child(16n+13),.theme-preview span:nth-child(16n+15){background:var(--preview-dark)}.theme-preview.classic{--preview-light:#e8edf1;--preview-dark:#719b8a}.theme-preview.wood{--preview-light:#ead7b4;--preview-dark:#956744}.theme-preview.midnight{--preview-light:#b9c8df;--preview-dark:#465d83}.theme-preview.lavender{--preview-light:#eee7f5;--preview-dark:#9a83b8}.theme-preview.mono{--preview-light:#e5e5e5;--preview-dark:#777d85}.theme-card strong{display:block;font-size:12px}.theme-card small{display:block;color:var(--muted);font-size:10px;margin-top:3px;line-height:1.4}.piece-gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.piece-preview{height:76px;border-radius:8px;background:linear-gradient(135deg,#263545,#101720);display:flex;align-items:center;justify-content:center;gap:9px;font-size:38px;margin-bottom:9px}.piece-preview .pwhite{color:#fffdf5;text-shadow:0 1px 2px #202830,0 0 2px #202830}.piece-preview .pblack{color:#17212b;text-shadow:0 1px 1px #ffffff88}.theme-footer{display:flex;justify-content:flex-end;margin-top:18px}.theme-done{background:var(--accent);color:#10221b;border:0;border-radius:11px;padding:11px 20px;font-weight:800;cursor:pointer}
+@media(max-width:600px){.header-tools{gap:7px}.theme-open{padding:9px 11px}.theme-dialog{padding:15px;border-radius:17px}.theme-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}.piece-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}.theme-preview{height:58px}}
+
+</style>
+</head>
+<body>
+<div class="check-popup" id="checkPopup" aria-live="assertive" role="status"><div class="check-popup-card" id="checkPopupText">⚠ CHECK TO WHITE</div></div>
+<div hidden aria-hidden="true"><select id="boardTheme"><option value="classic">Classic Green</option><option value="wood">Warm Wood</option><option value="midnight">Midnight Blue</option><option value="lavender">Lavender</option><option value="mono">Monochrome</option></select><select id="pieceTheme"><option value="classic">Classic</option><option value="high-contrast">High contrast</option><option value="soft">Soft shadow</option></select></div>
+<div class="theme-overlay" id="themeOverlay" role="dialog" aria-modal="true" aria-labelledby="themeDialogTitle">
+ <div class="theme-dialog"><div class="theme-dialog-head"><div><h2 id="themeDialogTitle">Make Chessmate yours</h2><p>Choose a board look and piece style. Your choices are saved on this device.</p></div><button class="theme-close" id="closeThemes" type="button" aria-label="Close themes">✕</button></div>
+ <div class="theme-group-title">Board themes</div><div class="theme-gallery" id="boardThemeGallery">
+  <button class="theme-card" data-board-choice="classic" aria-pressed="true"><div class="theme-preview classic" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><strong>Classic Green</strong><small>Clean cream and green squares</small></button>
+  <button class="theme-card" data-board-choice="wood" aria-pressed="false"><div class="theme-preview wood" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><strong>Warm Wood</strong><small>Traditional natural wood tones</small></button>
+  <button class="theme-card" data-board-choice="midnight" aria-pressed="false"><div class="theme-preview midnight" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><strong>Midnight Blue</strong><small>Cool blue and navy squares</small></button>
+  <button class="theme-card" data-board-choice="lavender" aria-pressed="false"><div class="theme-preview lavender" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><strong>Lavender</strong><small>Soft lilac and purple</small></button>
+  <button class="theme-card" data-board-choice="mono" aria-pressed="false"><div class="theme-preview mono" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><strong>Monochrome</strong><small>Minimal grayscale contrast</small></button>
+ </div><div class="theme-group-title">Piece styles</div><div class="piece-gallery">
+  <button class="theme-card" data-piece-choice="classic" aria-pressed="true"><div class="piece-preview"><span class="pwhite">♘♔</span><span class="pblack">♞♚</span></div><strong>Classic</strong><small>Original pieces</small></button>
+  <button class="theme-card" data-piece-choice="high-contrast" aria-pressed="false"><div class="piece-preview" style="background:#f1f4f6"><span class="pwhite" style="filter:drop-shadow(0 1px 1px #0002);text-shadow:0 1px 1px #26313a">♘♔</span><span class="pblack" style="color:#111820;text-shadow:none">♞♚</span></div><strong>High Contrast</strong><small>Sharper outlines</small></button>
+  <button class="theme-card" data-piece-choice="soft" aria-pressed="false"><div class="piece-preview"><span class="pwhite" style="filter:drop-shadow(0 2px 2px #0004)">♘♔</span><span class="pblack" style="filter:drop-shadow(0 2px 2px #0004)">♞♚</span></div><strong>Soft Shadow</strong><small>Extra depth under pieces</small></button>
+ </div><div class="theme-footer"><button class="theme-done" id="doneThemes" type="button">Done</button></div></div></div>
+<div class="app">
+<header><div class="brand"><div class="logo">♞</div><div><div class="eyebrow">CLASSIC CHESS, YOUR WAY</div><h1>Chessmate</h1></div></div><div class="header-tools"><button class="theme-open" id="openThemes" type="button">🎨 Themes</button><div class="turn-pill" id="topPill">White to move</div></div></header>
+<main class="layout">
+<section class="board-card">
+  <div class="playerbar"><div class="player"><div class="avatar">♚</div><div><strong>Black</strong><small id="blackCaption">Ready to play</small></div></div><div class="turn-pill" id="blackPill">Black</div></div>
+  <div class="board" id="board" role="grid" aria-label="Chess board"></div>
+  <div class="playerbar bottom"><div class="player"><div class="avatar">♔</div><div><strong>White</strong><small id="whiteCaption">Ready to play</small></div></div><div class="turn-pill active" id="whitePill">White</div></div>
+  <div class="board-hint">Tap a piece, then tap a highlighted square to move.</div>
+
+</section>
+<aside class="side-card">
+  <div class="statusbox"><div class="status-label">Game status</div><div class="status-title" id="statusTitle">Your move</div><div class="status-desc" id="statusDesc">White starts. Select any white piece to see its legal moves.</div></div>
+  <div class="actions"><button class="btn primary" id="createRoom">🌐 Create Room</button><button class="btn" id="joinRoom">🔑 Join Room</button><button class="btn primary" id="newGame">↻ New game</button><button class="btn" id="gameMode">🤖 Game mode</button><button class="btn" id="flip">⇅ Flip board</button><button class="btn" id="clearSelect">✦ Clear selection</button><button class="btn" id="description">ⓘ Chess guide</button><button class="btn" id="replayGame">⏮ Replay game</button></div>
+  <section class="clock-panel" aria-label="Chess clock settings">
+    <div class="clock-head"><strong>⏱ Chess clock</strong><span id="clockModeLabel">No timer · default</span></div>
+    <div class="clock-fields">
+      <label for="clockPreset">Starting time<select id="clockPreset"><option value="0">No timer (default)</option><option value="3">3 minutes</option><option value="5">5 minutes</option><option value="7">7 minutes</option><option value="10">10 minutes</option><option value="custom">Custom</option></select></label>
+      <label for="clockIncrement">Time added per move<select id="clockIncrement"><option value="0">+0 seconds</option><option value="1">+1 second</option><option value="2" selected>+2 seconds</option><option value="3">+3 seconds</option><option value="5">+5 seconds</option><option value="10">+10 seconds</option></select></label>
+      <label id="customMinutesWrap" class="custom-minutes" for="customMinutes">Custom minutes<input id="customMinutes" type="number" min="1" max="180" value="5" inputmode="numeric"></label>
+    </div>
+    <div class="clock-readouts"><div class="clock-time active" id="whiteClockBox"><small>♔ White</small><strong id="whiteClock">—</strong></div><div class="clock-time" id="blackClockBox"><small>♚ Black</small><strong id="blackClock">—</strong></div></div>
+  </section>
+  <div class="stats-panel" id="statsPanel" aria-label="Match statistics">
+    <div class="stats-heading"><strong>Match stats</strong><button class="stats-toggle" id="statsToggle" type="button" aria-expanded="false" aria-controls="statsDetails"><span id="statsStreak">🔥 0 streak</span><span class="arrow" aria-hidden="true">▾</span></button></div>
+    <div class="stats-details" id="statsDetails" hidden><div class="stats-grid">
+      <div><strong id="statsWins">0</strong><span>Wins</span></div>
+      <div><strong id="statsLosses">0</strong><span>Losses</span></div>
+      <div><strong id="statsDraws">0</strong><span>Draws</span></div>
+    </div>
+    <div class="stats-foot" id="statsPerspective">Record from White's perspective in 2-player mode.</div></div>
+  </div>
+  <div class="history-section" id="historySection"><div class="section-head"><h2>Move history</h2><span id="moveCount">0 moves</span></div>
+  <div class="moves" id="moves"><div class="empty">Your moves will appear here.</div></div></div>
+  <div class="toast" id="toast" aria-live="polite"></div>
+</aside>
+</main>
+</div>
+<div class="promotion-overlay" id="modeOverlay" role="dialog" aria-modal="true" aria-labelledby="modeTitle"><div class="promotion-box"><h2 id="modeTitle">Choose game mode</h2><p>Play with a friend or challenge the Chessmate AI.</p><label for="modeChoice" style="display:block;font-size:12px;font-weight:700;margin:10px 0 6px">Game mode</label><select id="modeChoice" class="btn" style="width:100%;text-align:left"><option value="two">2 Players (same device)</option><option value="ai">Play against AI</option></select><label for="difficultyChoice" style="display:block;font-size:12px;font-weight:700;margin:12px 0 6px">AI difficulty</label><select id="difficultyChoice" class="btn" style="width:100%;text-align:left"><option value="easy">Easy</option><option value="medium" selected>Medium</option><option value="hard">Hard</option></select><label for="colorChoice" style="display:block;font-size:12px;font-weight:700;margin:12px 0 6px">Play as</label><select id="colorChoice" class="btn" style="width:100%;text-align:left"><option value="w">White (AI moves second)</option><option value="b">Black (AI moves first)</option></select><button class="btn primary" id="applyMode" style="width:100%;margin-top:16px">Start game</button><button class="btn" id="cancelMode" style="width:100%;margin-top:8px">Cancel</button></div></div>
+<div class="promotion-overlay" id="descriptionOverlay" role="dialog" aria-modal="true" aria-labelledby="descriptionTitle"><div class="promotion-box"><h2 id="descriptionTitle">How to play chess</h2><p>Chess is a two-player strategy game. White moves first, then players take turns. The goal is to checkmate the opposing king.</p><p><strong>Piece moves:</strong> Pawns move forward and capture diagonally; rooks move in straight lines; bishops diagonally; queens in straight lines or diagonally; knights move in an L-shape; kings move one square in any direction.</p><p><strong>Check:</strong> Your king is under attack. In this version, you may move any piece while in check, but if your move leaves your own king in check, you immediately lose.</p><button class="btn primary" id="closeDescription" style="width:100%;margin-top:4px">Got it</button></div></div>
+<div class="promotion-overlay result-overlay" id="resultOverlay" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
+  <div class="promotion-box result-box">
+    <div class="result-emblem" id="resultEmblem" aria-hidden="true">♛</div>
+    <div class="result-kicker" id="resultKicker">GAME OVER</div>
+    <h2 id="resultTitle">Checkmate!</h2>
+    <p id="resultDesc">The round has ended.</p>
+    <div class="result-confetti" aria-hidden="true"><i>✦</i><i>✧</i><i>✦</i><i>✧</i><i>✦</i><i>✧</i></div>
+    <button class="btn primary" id="closeResult" style="width:100%;margin-top:12px">↻ Rematch — New Round</button>
+  </div>
+</div>
+<div class="promotion-overlay replay-overlay" id="replayOverlay" role="dialog" aria-modal="true" aria-labelledby="replayTitle"><div class="promotion-box"><h2 id="replayTitle">Replay this game</h2><p id="replayDescription">Step through the moves from the start.</p><div class="replay-board-wrap"><div class="board" id="replayBoard" role="grid" aria-label="Replay chess board"></div></div><div class="replay-controls"><button class="btn" id="replayStart">|◀</button><button class="btn" id="replayPrev">◀ Prev</button><span class="replay-count" id="replayCount">Position 1 / 1</span><button class="btn" id="replayNext">Next ▶</button><button class="btn" id="replayEnd">▶|</button></div><button class="btn primary" id="closeReplay" style="width:100%;margin-top:12px">Close replay</button></div></div>
+<div class="promotion-overlay" id="promotionOverlay"><div class="promotion-box"><h2>Promote your pawn</h2><p>Choose what your pawn becomes.</p><div class="promotion-options" id="promotionOptions"></div></div></div>
+<div class="promotion-overlay" id="confirmOverlay" role="dialog" aria-modal="true" aria-labelledby="confirmTitle"><div class="promotion-box"><h2 id="confirmTitle">End this game?</h2><p id="confirmMessage">Your current game will be lost.</p><div style="display:flex;gap:8px;margin-top:16px"><button class="btn" id="cancelConfirm" style="flex:1">Keep playing</button><button class="btn primary" id="acceptConfirm" style="flex:1">Continue</button></div></div></div>
+<script>
+const GLYPHS={w:{k:'♔',q:'♕',r:'♖',b:'♗',n:'♘',p:'♙'},b:{k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟'}};
+const FILES='abcdefgh';
+let board=[],turn='w',selected=null,legal=[],history=[],records=[],lastMove=null,flipped=false,gameOver=false,enPassant=null,castle={wk:true,wq:true,bk:true,bq:true},pendingPromotion=null;
+let replayStates=[],replayIndex=0;
+let gameMode='two',aiDifficulty='medium',humanColor='w',aiColor='b',aiThinking=false,lastCheckPopupColor=null,animatedTo=null,animatedFrom=null,statsRecordedThisGame=false;
+let clockBaseMinutes=0,clockIncrement=2,clockRemaining={w:0,b:0},clockLastTick=0,clockTimer=null,clockEnabled=false,clockStarted=false;
+const $=id=>document.getElementById(id);
+const THEME_KEY='chessmate-appearance-v1';
+function applyAppearance(){let prefs={board:'classic',pieces:'classic'};try{prefs={...prefs,...JSON.parse(localStorage.getItem(THEME_KEY)||'{}')}}catch(e){};document.body.dataset.boardTheme=prefs.board;document.body.dataset.pieceTheme=prefs.pieces;if($('boardTheme'))$('boardTheme').value=prefs.board;if($('pieceTheme'))$('pieceTheme').value=prefs.pieces;}
+function saveAppearance(){const prefs={board:$('boardTheme').value,pieces:$('pieceTheme').value};document.body.dataset.boardTheme=prefs.board;document.body.dataset.pieceTheme=prefs.pieces;try{localStorage.setItem(THEME_KEY,JSON.stringify(prefs))}catch(e){};}
+
+const STATS_KEY='chessmate-match-stats-v1';
+function loadStats(){const base={wins:0,losses:0,draws:0,streak:0};try{return {...base,...JSON.parse(localStorage.getItem(STATS_KEY)||'{}')}}catch(e){return base}}
+function saveStats(stats){try{localStorage.setItem(STATS_KEY,JSON.stringify(stats))}catch(e){}}
+function updateStatsUI(){const s=loadStats();$('statsWins').textContent=s.wins;$('statsLosses').textContent=s.losses;$('statsDraws').textContent=s.draws;$('statsStreak').textContent=`🔥 ${s.streak} streak`;$('statsPerspective').textContent=gameMode==='ai'?`Your record vs ${aiDifficulty[0].toUpperCase()+aiDifficulty.slice(1)} AI.`:"Record from White's perspective in 2-player mode."}
+function recordResult(kind,winnerColor=null){if(statsRecordedThisGame)return;statsRecordedThisGame=true;const s=loadStats();if(kind==='draw'){s.draws++;s.streak=0}else{const tracked=gameMode==='ai'?humanColor:'w';if(winnerColor===tracked){s.wins++;s.streak++}else{s.losses++;s.streak=0}}saveStats(s);updateStatsUI()}
+let audioContext=null;
+function playGameSound(kind){try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;if(!audioContext)audioContext=new AC();if(audioContext.state==='suspended')audioContext.resume();const now=audioContext.currentTime;const notes=kind==='check'?[660,880]:kind==='capture'?[190,130]:kind==='win'?[523,659,784]:[380];notes.forEach((freq,i)=>{const osc=audioContext.createOscillator(),gain=audioContext.createGain();osc.type=kind==='capture'?'triangle':'sine';osc.frequency.setValueAtTime(freq,now+i*.075);gain.gain.setValueAtTime(.0001,now+i*.075);gain.gain.exponentialRampToValueAtTime(kind==='win'?.11:.055,now+i*.075+.012);gain.gain.exponentialRampToValueAtTime(.0001,now+i*.075+(kind==='win'?.24:.12));osc.connect(gain);gain.connect(audioContext.destination);osc.start(now+i*.075);osc.stop(now+i*.075+.27)})}catch(e){}}
+function renderReplayBoard(){const el=$('replayBoard'),st=replayStates[replayIndex];if(!st)return;el.innerHTML='';for(let i=0;i<64;i++){const sq=document.createElement('div');sq.className='square '+((Math.floor(i/8)+i%8)%2===0?'light':'dark');if(st.board[i]){const sp=document.createElement('span');sp.className='piece '+(st.board[i].c==='w'?'white':'black');sp.textContent=GLYPHS[st.board[i].c][st.board[i].t];sq.appendChild(sp)}el.appendChild(sq)}$('replayCount').textContent=`Position ${replayIndex+1} / ${replayStates.length}`;$('replayDescription').textContent=replayIndex===0?'Starting position':`After ${replayIndex} half-move${replayIndex===1?'':'s'}${st.records?.length?`: ${st.records[st.records.length-1]?.san||''}`:''}`;$('replayPrev').disabled=replayIndex===0;$('replayStart').disabled=replayIndex===0;$('replayNext').disabled=replayIndex===replayStates.length-1;$('replayEnd').disabled=replayIndex===replayStates.length-1}
+function openReplay(){const current={...copyState(),records:records.slice()};if(history.length){replayStates=history.map((st,i)=>({...st,records:records.slice(0,i)}));replayStates.push(current)}else replayStates=[current];replayIndex=0;renderReplayBoard();$('replayOverlay').classList.add('show')}
+function initialBoard(){return [
+{c:'b',t:'r'},{c:'b',t:'n'},{c:'b',t:'b'},{c:'b',t:'q'},{c:'b',t:'k'},{c:'b',t:'b'},{c:'b',t:'n'},{c:'b',t:'r'},
+...Array.from({length:8},()=>({c:'b',t:'p'})),...Array.from({length:32},()=>null),
+...Array.from({length:8},()=>({c:'w',t:'p'})),
+{c:'w',t:'r'},{c:'w',t:'n'},{c:'w',t:'b'},{c:'w',t:'q'},{c:'w',t:'k'},{c:'w',t:'b'},{c:'w',t:'n'},{c:'w',t:'r'}] }
+function readClockSettings(){const preset=$('clockPreset').value;clockBaseMinutes=preset==='custom'?Math.max(1,Math.min(180,Number($('customMinutes').value)||5)):Number(preset);clockIncrement=Math.max(0,Number($('clockIncrement').value)||0);clockEnabled=clockBaseMinutes>0;$('clockModeLabel').textContent=clockEnabled?`${clockBaseMinutes} min · +${clockIncrement}s/move · starts after White moves`:'No timer · default';}
+function resetClock(){readClockSettings();clockRemaining={w:clockBaseMinutes*60000,b:clockBaseMinutes*60000};clockStarted=false;clockLastTick=Date.now();updateClockUI();}
+function formatClock(ms){ms=Math.max(0,ms);const total=Math.ceil(ms/1000),m=Math.floor(total/60),sec=total%60;return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`}
+function updateClockUI(){if(!$('whiteClock'))return;$('whiteClock').textContent=clockEnabled?formatClock(clockRemaining.w):'—';$('blackClock').textContent=clockEnabled?formatClock(clockRemaining.b):'—';$('whiteClockBox').classList.toggle('active',clockEnabled&&!gameOver&&turn==='w');$('blackClockBox').classList.toggle('active',clockEnabled&&!gameOver&&turn==='b');$('whiteClockBox').classList.toggle('low',clockEnabled&&clockRemaining.w<=10000);$('blackClockBox').classList.toggle('low',clockEnabled&&clockRemaining.b<=10000);}
+function tickClock(){const now=Date.now(),elapsed=Math.min(1500,Math.max(0,now-clockLastTick));clockLastTick=now;if(!clockEnabled||!clockStarted||gameOver||!board.length||$('replayOverlay')?.classList.contains('show'))return;clockRemaining[turn]-=elapsed;if(clockRemaining[turn]<=0){clockRemaining[turn]=0;gameOver=true;selected=null;legal=[];const loser=turn,winner=turn==='w'?'b':'w';render();setStatus('Time out',`${loser==='w'?'White':'Black'} ran out of time. ${winner==='w'?'White':'Black'} wins.`);$('toast').textContent='Flag fall — game over.';showResult('TIME OUT!',`${winner==='w'?'White':'Black'} wins on time.`, 'win',winner);updateClockUI();return;}updateClockUI();}
+let confirmAction=null;
+function askInGameConfirm(message,action){$('confirmMessage').textContent=message;confirmAction=action;$('confirmOverlay').classList.add('show');$('acceptConfirm').focus()}
+function closeInGameConfirm(accept){$('confirmOverlay').classList.remove('show');const action=confirmAction;confirmAction=null;if(accept&&action)action()}
+$('cancelConfirm').onclick=()=>closeInGameConfirm(false);$('acceptConfirm').onclick=()=>closeInGameConfirm(true);$('confirmOverlay').onclick=e=>{if(e.target===$('confirmOverlay'))closeInGameConfirm(false)};
+function start(){resetClock();statsRecordedThisGame=false;lastCheckPopupColor=null;if($('checkPopup'))$('checkPopup').classList.remove('show');board=initialBoard();turn='w';selected=null;legal=[];history=[];records=[];lastMove=null;gameOver=false;aiThinking=false;enPassant=null;castle={wk:true,wq:true,bk:true,bq:true};pendingPromotion=null;$('promotionOverlay').classList.remove('show');$('resultOverlay').classList.remove('show');render();setStatus('Your move',gameMode==='ai'?(humanColor==='w'?'You are White. Make your move.':'You are Black. The AI will move first.'):'White starts. Select any white piece to see its legal moves.');$('toast').textContent='New game started.';updateStatsUI();if(gameMode==='ai'&&turn===aiColor)scheduleAiMove()}
+function rc(i){return [Math.floor(i/8),i%8]} function idx(r,c){return r*8+c} function inside(r,c){return r>=0&&r<8&&c>=0&&c<8}
+function copyState(){return {board:board.map(p=>p?{...p}:null),turn,castle:{...castle},enPassant,lastMove:lastMove?{...lastMove}:null,gameOver,records:records.slice()}}
+function restore(s){board=s.board.map(p=>p?{...p}:null);turn=s.turn;castle={...s.castle};enPassant=s.enPassant;lastMove=s.lastMove;gameOver=s.gameOver;records=s.records.slice();selected=null;legal=[];pendingPromotion=null;$('promotionOverlay').classList.remove('show');render();updateStatus()}
+function attacked(sq,by,arr=board){
+ const [r,c]=rc(sq);
+ // Pawn attacks
+ const pr=r+(by==='w'?1:-1);
+ for(const dc of [-1,1]){if(inside(pr,c+dc)){const p=arr[idx(pr,c+dc)];if(p&&p.c===by&&p.t==='p')return true}}
+ for(const [dr,dc] of [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]]){
+  let nr=r+dr,nc=c+dc,step=1;
+  while(inside(nr,nc)){const p=arr[idx(nr,nc)];if(p){if(p.c===by){if(p.t==='k'&&step===1)return true;if((dr===0||dc===0)&&p.t==='r')return true;if(Math.abs(dr)+Math.abs(dc)===1&&p.t==='q')return true;if(Math.abs(dr)===Math.abs(dc)&&(p.t==='b'||p.t==='q'))return true;}break;}nr+=dr;nc+=dc;step++}
+ }
+ for(const [dr,dc] of [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]]){let nr=r+dr,nc=c+dc;if(inside(nr,nc)){let p=arr[idx(nr,nc)];if(p&&p.c===by&&p.t==='n')return true}}
+ return false
+}
+function kingSquare(color,arr=board){return arr.findIndex(p=>p&&p.c===color&&p.t==='k')}
+function inCheck(color,arr=board){let k=kingSquare(color,arr);return k<0||attacked(k,color==='w'?'b':'w',arr)}
+function pseudoMoves(from,includeCastle=true){const p=board[from];if(!p)return[];let [r,c]=rc(from),out=[],add=(rr,cc,extra={})=>{if(!inside(rr,cc))return;let to=idx(rr,cc),target=board[to];if(target&&target.c===p.c)return;if(target&&target.t==='k')return;out.push({from,to,...extra})};
+ if(p.t==='p'){let dir=p.c==='w'?-1:1,start=p.c==='w'?6:1,promo=p.c==='w'?0:7;
+  if(inside(r+dir,c)&&!board[idx(r+dir,c)]){add(r+dir,c);if(r===start&&!board[idx(r+2*dir,c)])add(r+2*dir,c,{double:true})}
+  for(let dc of [-1,1])if(inside(r+dir,c+dc)){let to=idx(r+dir,c+dc),t=board[to];if(t&&t.c!==p.c&&t.t!=='k')add(r+dir,c+dc);else if(enPassant===to)out.push({from,to,enPassant:true})}
+  out=out.map(m=>rc(m.to)[0]===promo?{...m,promotion:true}:m);
+ }else if(p.t==='n'){for(let [dr,dc] of [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]])add(r+dr,c+dc)}
+ else if(p.t==='k'){for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++)if(dr||dc)add(r+dr,c+dc);
+  if(includeCastle&&!inCheck(p.c)&&c===4){let row=r,enemy=p.c==='w'?'b':'w';
+   let key=p.c==='w'?'w':'b';
+   if(castle[key+'k']&&board[idx(row,5)]===null&&board[idx(row,6)]===null&&board[idx(row,7)]?.t==='r'&&board[idx(row,7)]?.c===p.c&&!attacked(idx(row,5),enemy)&&!attacked(idx(row,6),enemy))out.push({from,to:idx(row,6),castle:'k'});
+   if(castle[key+'q']&&board[idx(row,1)]===null&&board[idx(row,2)]===null&&board[idx(row,3)]===null&&board[idx(row,0)]?.t==='r'&&board[idx(row,0)]?.c===p.c&&!attacked(idx(row,3),enemy)&&!attacked(idx(row,2),enemy))out.push({from,to:idx(row,2),castle:'q'});
+  }
+ }else{let dirs=[];if(p.t==='r'||p.t==='q')dirs.push([-1,0],[1,0],[0,-1],[0,1]);if(p.t==='b'||p.t==='q')dirs.push([-1,-1],[-1,1],[1,-1],[1,1]);for(let [dr,dc] of dirs){let nr=r+dr,nc=c+dc;while(inside(nr,nc)){let to=idx(nr,nc),target=board[to];if(target){if(target.c!==p.c&&target.t!=='k')out.push({from,to});break}out.push({from,to});nr+=dr;nc+=dc}}}
+ return out;
+}
+function applyRaw(m,promoChoice='q'){const p=board[m.from],captured=m.enPassant?board[m.to+(p.c==='w'?8:-8)]:board[m.to];board[m.to]=p;board[m.from]=null;if(m.enPassant)board[m.to+(p.c==='w'?8:-8)]=null;
+ if(m.castle){let row=rc(m.from)[0];if(m.castle==='k'){board[idx(row,5)]=board[idx(row,7)];board[idx(row,7)]=null}else{board[idx(row,3)]=board[idx(row,0)];board[idx(row,0)]=null}}
+ if(m.promotion)board[m.to]={c:p.c,t:promoChoice};if(p.t==='k'){castle[p.c+'k']=false;castle[p.c+'q']=false}if(p.t==='r'){if(m.from===56)castle.wq=false;if(m.from===63)castle.wk=false;if(m.from===0)castle.bq=false;if(m.from===7)castle.bk=false}
+ if(captured&&captured.t==='r'){if(m.to===56)castle.wq=false;if(m.to===63)castle.wk=false;if(m.to===0)castle.bq=false;if(m.to===7)castle.bk=false}
+ enPassant=m.double?m.from+(p.c==='w'?-8:8):null;return {p,captured};
+}
+function legalMoves(from){let p=board[from];if(!p)return[];if(inCheck(p.c))return pseudoMoves(from);return pseudoMoves(from).filter(m=>{let snap={board:board.map(x=>x?{...x}:null),castle:{...castle},enPassant};applyRaw(m,'q');let ok=!inCheck(p.c);board=snap.board;castle=snap.castle;enPassant=snap.enPassant;return ok})}
+function allLegal(color){let arr=[];for(let i=0;i<64;i++)if(board[i]?.c===color)arr.push(...legalMoves(i));return arr}
+function san(m,piece,captured,choice){let name={k:'K',q:'Q',r:'R',b:'B',n:'N',p:''}[piece.t],dest=FILES[rc(m.to)[1]]+(8-rc(m.to)[0]);let s=m.castle?(m.castle==='k'?'O-O':'O-O-O'):(name+(captured||m.enPassant?'x':'')+dest+(m.promotion?'='+({q:'Q',r:'R',b:'B',n:'N'}[choice||'q']):''));return s}
+function showCheckPopup(color){const popup=$('checkPopup'),label=$('checkPopupText');if(!popup||!label)return;label.textContent=`⚠ CHECK TO ${color==='w'?'WHITE':'BLACK'}`;popup.classList.remove('show');void popup.offsetWidth;popup.classList.add('show');setTimeout(()=>popup.classList.remove('show'),1450)}
+function showResult(title,desc,kind=null,winnerColor=null){if(kind)recordResult(kind,winnerColor);$('resultTitle').textContent=title;$('resultDesc').textContent=desc;$('resultKicker').textContent=kind==='draw'?'DRAW GAME':(kind==='win'?'VICTORY':'ROUND COMPLETE');$('resultEmblem').textContent=kind==='draw'?'½':(kind==='win'?'♔':'♛');$('resultOverlay').classList.remove('show');void $('resultOverlay').offsetWidth;$('resultOverlay').classList.add('show');playGameSound(kind==='win'?'win':'capture')}
+function makeMove(m,choice='q'){
+ if(gameOver||(aiThinking&&turn===humanColor))return;
+ history.push(copyState());
+ const p=board[m.from],mover=p.c,captured=m.enPassant?board[m.to+(p.c==='w'?8:-8)]:board[m.to];
+ const wasInCheck=inCheck(mover),notation=san(m,p,captured,choice);
+ applyRaw(m,choice);if(clockEnabled){clockRemaining[mover]+=clockIncrement*1000;if(mover==='w'&&!clockStarted){clockStarted=true;clockLastTick=Date.now();}}lastMove={from:m.from,to:m.to};animatedFrom=m.from;animatedTo=m.to;setTimeout(()=>{animatedTo=null;animatedFrom=null},460);
+ const leftKingInCheck=inCheck(mover);turn=turn==='w'?'b':'w';selected=null;legal=[];
+ playGameSound(captured?'capture':'move');
+ if(wasInCheck&&leftKingInCheck){
+   gameOver=true;records.push({color:mover,san:notation+' (king left in check)',fullmove:Math.ceil(records.length/2)});
+   render();const loser=mover==='w'?'White':'Black',winner=mover==='w'?'Black':'White';
+   setStatus('King not protected',`${loser} loses for leaving their king in check. ${winner} wins.`);
+   $('toast').textContent='Move leaves the king in check — loss.';
+   showResult(`${loser} loses!`,`${winner} wins for leaving the opposing king protected.`, 'win',mover==='w'?'b':'w');return;
+ }
+ let moves=allLegal(turn),check=inCheck(turn),suffix='';
+ if(check&&moves.length===0)suffix='#';else if(check)suffix='+';
+ records.push({color:mover,san:notation+suffix,fullmove:Math.ceil(records.length/2)});
+ if(moves.length===0)gameOver=true;
+ render();updateStatus();
+ if(check)playGameSound(moves.length===0?'win':'check');
+ $('toast').textContent=check&&moves.length===0?'Checkmate!':check?'Check!':'';
+ if(gameOver){
+   const title=$('statusTitle').textContent,desc=$('statusDesc').textContent;
+   if(check){const winner=turn==='w'?'b':'w';showResult('CHECKMATE!',`${winner==='w'?'White':'Black'} wins by checkmate.`, 'win',winner)}
+   else showResult('Draw — Stalemate',desc,'draw');
+   return;
+ }
+ if(gameMode==='ai'&&turn===aiColor)scheduleAiMove();
+}
+function selectSquare(i){if(gameOver||pendingPromotion||aiThinking||(gameMode==='ai'&&turn===aiColor))return;const p=board[i];if(selected!==null){let m=legal.find(x=>x.to===i);if(m){if(m.promotion){showPromotion(m);return}makeMove(m);return}}
+ if(p&&p.c===turn){selected=i;legal=legalMoves(i)}else{selected=null;legal=[]}render()}
+function showPromotion(m){pendingPromotion=m;$('promotionOptions').innerHTML='';for(let t of ['q','r','b','n']){let b=document.createElement('button');b.className='promo';b.textContent=GLYPHS[turn][t];b.setAttribute('aria-label',({q:'Queen',r:'Rook',b:'Bishop',n:'Knight'})[t]);b.onclick=()=>{pendingPromotion=null;$('promotionOverlay').classList.remove('show');makeMove(m,t)};$('promotionOptions').appendChild(b)}$('promotionOverlay').classList.add('show')}
+function render(){updateClockUI();if($('flip')){ $('flip').disabled=records.length>0||gameOver;$('flip').title=$('flip').disabled?'Board orientation can only be changed before the first move.':'Choose board orientation before the game starts.';}const el=$('board');el.innerHTML='';const rows=Array.from({length:8},(_,i)=>i),cols=Array.from({length:8},(_,i)=>i);if(flipped){rows.reverse();cols.reverse()}
+ for(let rr of rows)for(let cc of cols){let i=idx(rr,cc),sq=document.createElement('button');sq.className='square '+((rr+cc)%2===0?'light':'dark');sq.setAttribute('role','gridcell');sq.setAttribute('aria-label',FILES[cc]+(8-rr)+(board[i]?`, ${board[i].c==='w'?'white':'black'} ${board[i].t}`:''));if(selected===i)sq.classList.add('selected');if(lastMove&&(lastMove.from===i||lastMove.to===i))sq.classList.add('lastmove');if(legal.some(m=>m.to===i))sq.classList.add(board[i]?'capture':'legal');if(board[i]&&board[i].c===turn&&!gameOver)sq.classList.add('turn-piece');if(i===animatedTo&&animatedFrom!==null)sq.classList.add('animating-piece');if(board[i]){let span=document.createElement('span'),motion=null;span.className='piece '+(board[i].c==='w'?'white':'black')+(i===animatedTo?' move-arrive':'');if(i===animatedTo&&animatedFrom!==null){const fromR=Math.floor(animatedFrom/8),fromC=animatedFrom%8,toR=Math.floor(animatedTo/8),toC=animatedTo%8;const visualFromR=flipped?7-fromR:fromR,visualFromC=flipped?7-fromC:fromC,visualToR=flipped?7-toR:toR,visualToC=flipped?7-toC:toC;const cell=el.clientWidth/8;motion={x:(visualFromC-visualToC)*cell,y:(visualFromR-visualToR)*cell}}span.textContent=GLYPHS[board[i].c][board[i].t];sq.appendChild(span);if(motion&&span.animate){requestAnimationFrame(()=>{span.animate([{transform:`translate(${motion.x}px,${motion.y}px) scale(1.08)`},{transform:'translate(0,0) scale(1)'}],{duration:560,easing:'cubic-bezier(.2,.75,.25,1)',fill:'both'})})}}if((!flipped&&cc===0)||(flipped&&cc===7)){let co=document.createElement('span');co.className='coord rank';co.textContent=8-rr;sq.appendChild(co)}if((!flipped&&rr===7)||(flipped&&rr===0)){let co=document.createElement('span');co.className='coord file';co.textContent=FILES[cc];sq.appendChild(co)}sq.onclick=()=>selectSquare(i);el.appendChild(sq)}
+ const count=records.length;$('moveCount').textContent=count+' '+(count===1?'move':'moves');const movesEl=$('moves');movesEl.innerHTML='';if(!count)movesEl.innerHTML='<div class="empty">Your moves will appear here.</div>';for(let n=0;n<count;n+=2){let row=document.createElement('div');row.className='move-row';let no=document.createElement('span');no.className='move-no';no.textContent=(Math.floor(n/2)+1)+'.';let w=document.createElement('span');w.className='move-san';w.textContent=records[n]?.san||'';let b=document.createElement('span');b.className='move-san';b.textContent=records[n+1]?.san||'';row.append(no,w,b);movesEl.appendChild(row)}movesEl.scrollTop=movesEl.scrollHeight;
+ $('topPill').textContent=gameOver?'Game over':(turn==='w'?'White to move':'Black to move');$('topPill').classList.toggle('active',!gameOver);$('whitePill').classList.toggle('active',turn==='w'&&!gameOver);$('blackPill').classList.toggle('active',turn==='b'&&!gameOver);$('whiteCaption').textContent=gameMode==='ai'&&humanColor==='w'?'You':(turn==='w'&&!gameOver?(gameMode==='ai'?'AI thinking':'Thinking time'):' ');$('blackCaption').textContent=gameMode==='ai'&&humanColor==='b'?'You':(turn==='b'&&!gameOver?(gameMode==='ai'?'AI thinking':'Thinking time'):' ');
+}
+function setStatus(title,desc){$('statusTitle').textContent=title;$('statusDesc').textContent=desc}
+function updateStatus(){let moves=allLegal(turn),check=inCheck(turn);if(check&&moves.length>0&&!gameOver&&lastCheckPopupColor!==turn){showCheckPopup(turn);lastCheckPopupColor=turn;playGameSound('check')}else if(!check){lastCheckPopupColor=null}if(moves.length===0){gameOver=true;if(check)setStatus('Checkmate',`${turn==='w'?'Black':'White'} wins. Start a new game to play again.`);else setStatus('Stalemate','The game is a draw: no legal moves remain, but the king is not in check.')}else if(check)setStatus(`Check to ${turn==='w'?'White':'Black'}!`,`${turn==='w'?'White':'Black'} king is under attack. Find a legal move to escape.`);else setStatus(turn==='w'?'White to move':'Black to move',selected!==null?'Choose a highlighted square to complete your move.':`${turn==='w'?'White':'Black'} to play. Select a piece to see its legal moves.`);render()}
+function scheduleAiMove(){if(gameMode!=='ai'||gameOver||turn!==aiColor||aiThinking)return;aiThinking=true;selected=null;legal=[];setStatus('AI thinking…',`${aiDifficulty[0].toUpperCase()+aiDifficulty.slice(1)} AI is choosing a move.`);render();setTimeout(()=>{if(gameOver||gameMode!=='ai'||turn!==aiColor){aiThinking=false;return}const move=chooseAiMove();aiThinking=false;if(move){const piece=board[move.from];const cap=move.enPassant?board[move.to+(piece.c==='w'?8:-8)]:board[move.to];if(move.promotion){makeMove(move,'q')}else makeMove(move)}else{gameOver=true;updateStatus();showResult('Draw — No moves', 'No moves are available. Start a new round.', 'draw')}},aiDifficulty==='easy'?250:450)}
+const VALUE={p:100,n:320,b:330,r:500,q:900,k:20000};
+function snapshotAI(){return {board:board.map(p=>p?{...p}:null),castle:{...castle},enPassant,lastMove:lastMove?{...lastMove}:null,turn,gameOver}}
+function restoreAI(s){board=s.board.map(p=>p?{...p}:null);castle={...s.castle};enPassant=s.enPassant;lastMove=s.lastMove?{...s.lastMove}:null;turn=s.turn;gameOver=s.gameOver}
+function evaluateAI(pov){let score=0;for(let i=0;i<64;i++){const p=board[i];if(!p)continue;let v=VALUE[p.t];const [r,c]=rc(i);if(p.t==='p')v+=(p.c==='w'?(6-r):(r-1))*4;if(['n','b'].includes(p.t)){const center=3.5-(Math.abs(3.5-r)+Math.abs(3.5-c))/2;v+=center*8}score+=(p.c===pov?v:-v)}if(inCheck(pov))score-=180;if(inCheck(pov==='w'?'b':'w'))score+=180;return score}
+function moveScore(m,color){const snap=snapshotAI(),p=board[m.from],target=m.enPassant?board[m.to+(p.c==='w'?8:-8)]:board[m.to];let bonus=target?VALUE[target.t]*0.85:0;if(m.promotion)bonus+=650;applyRaw(m,'q');if(inCheck(color))bonus-=1200;if(inCheck(color==='w'?'b':'w'))bonus+=35;const pos=evaluateAI(color);restoreAI(snap);return pos+bonus}
+function chooseAiMove(){let candidates=allLegal(aiColor);if(!candidates.length)return null;if(aiDifficulty==='easy'){// Mostly random, with a small preference for captures and promotions.
+ candidates.sort((a,b)=>moveScore(b,aiColor)-moveScore(a,aiColor));const pool=candidates.slice(0,Math.max(1,Math.ceil(candidates.length*.65)));return pool[Math.floor(Math.random()*pool.length)]}
+ if(aiDifficulty==='medium'){let best=-Infinity,choices=[];for(const m of candidates){let sc=moveScore(m,aiColor)+Math.random()*18;if(sc>best){best=sc;choices=[m]}else if(sc===best)choices.push(m)}return choices[Math.floor(Math.random()*choices.length)]}
+ // Hard: choose the move with the best worst-case result after one opponent reply.
+ let best=-Infinity,bestMoves=[];for(const m of candidates){const root=snapshotAI();applyRaw(m,'q');let score=evaluateAI(aiColor);const replies=allLegal(humanColor);if(!replies.length){score+=inCheck(humanColor)?10000:0}else{let worst=Infinity;for(const reply of replies){const afterReply=snapshotAI();const rp=board[reply.from],cap=reply.enPassant?board[reply.to+(rp.c==='w'?8:-8)]:board[reply.to];applyRaw(reply,'q');let v=evaluateAI(aiColor);if(inCheck(aiColor))v-=500;restoreAI(afterReply);if(v<worst)worst=v}score=worst}restoreAI(root);score+=Math.random()*2;if(score>best){best=score;bestMoves=[m]}else if(Math.abs(score-best)<.01)bestMoves.push(m)}return bestMoves[Math.floor(Math.random()*bestMoves.length)]}
+$('statsToggle').onclick=()=>{const expanded=$('statsToggle').getAttribute('aria-expanded')!=='true';$('statsToggle').setAttribute('aria-expanded',String(expanded));$('statsDetails').hidden=!expanded;$('statsPanel');$('statsToggle').querySelector('.arrow').textContent=expanded?'▴':'▾';$('historySection').classList.toggle('hidden',expanded);$('statsToggle').closest('.stats-panel').classList.toggle('expanded',expanded)};
+function setBoardTheme(value){$('boardTheme').value=value;saveAppearance();document.querySelectorAll('[data-board-choice]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.boardChoice===value)));}
+function setPieceTheme(value){$('pieceTheme').value=value;saveAppearance();document.querySelectorAll('[data-piece-choice]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.pieceChoice===value)));}
+function closeThemeDialog(){$('themeOverlay').classList.remove('show');$('openThemes').focus();}
+$('openThemes').onclick=()=>{$('themeOverlay').classList.add('show');document.querySelector('[data-board-choice="'+document.body.dataset.boardTheme+'"]').setAttribute('aria-pressed','true');document.querySelector('[data-piece-choice="'+document.body.dataset.pieceTheme+'"]').setAttribute('aria-pressed','true');$('closeThemes').focus()};
+$('closeThemes').onclick=closeThemeDialog;$('doneThemes').onclick=closeThemeDialog;
+$('themeOverlay').addEventListener('click',e=>{if(e.target===$('themeOverlay'))closeThemeDialog()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('themeOverlay').classList.contains('show'))closeThemeDialog()});
+document.querySelectorAll('[data-board-choice]').forEach(b=>b.onclick=()=>setBoardTheme(b.dataset.boardChoice));document.querySelectorAll('[data-piece-choice]').forEach(b=>b.onclick=()=>setPieceTheme(b.dataset.pieceChoice));
+$('boardTheme').addEventListener('change',saveAppearance);$('pieceTheme').addEventListener('change',saveAppearance);applyAppearance();
+// Online multiplayer buttons are UI placeholders until PeerJS networking is integrated.
+$('createRoom').onclick=()=>{setStatus('Online multiplayer not connected yet','The Create Room button is ready, but room creation needs the PeerJS connection code. Your local game still works.');$('toast').textContent='Online rooms are not connected yet.';};
+$('joinRoom').onclick=()=>{setStatus('Online multiplayer not connected yet','The Join Room button is ready, but joining a room needs the PeerJS connection code. Your local game still works.');$('toast').textContent='Online rooms are not connected yet.';};
+$('newGame').onclick=()=>{if(records.length&&!gameOver)askInGameConfirm('Start a new game? Your current game will be lost.',start);else start()};
+$('clockPreset').addEventListener('change',()=>{$('customMinutesWrap').classList.toggle('show',$('clockPreset').value==='custom');if(records.length&&!gameOver)askInGameConfirm('Changing the clock will restart this game. Continue?',start);else start()});$('clockIncrement').addEventListener('change',()=>{if(records.length&&!gameOver)askInGameConfirm('Changing the increment will restart this game. Continue?',start);else start()});$('customMinutes').addEventListener('change',()=>{if($('clockPreset').value==='custom'){if(records.length&&!gameOver)askInGameConfirm('Changing the clock will restart this game. Continue?',start);else start()}});
+clockTimer=setInterval(tickClock,200);window.addEventListener('beforeunload',()=>{if(clockTimer)clearInterval(clockTimer)});
+$('gameMode').onclick=()=>{$('modeChoice').value=gameMode;$('difficultyChoice').value=aiDifficulty;$('colorChoice').value=humanColor;$('modeOverlay').classList.add('show')};
+$('cancelMode').onclick=()=>{$('modeOverlay').classList.remove('show')};
+$('applyMode').onclick=()=>{const apply=()=>{gameMode=$('modeChoice').value;aiDifficulty=$('difficultyChoice').value;humanColor=$('colorChoice').value;aiColor=humanColor==='w'?'b':'w';$('modeOverlay').classList.remove('show');$('whiteCaption').textContent=gameMode==='ai'&&humanColor==='w'?'You':'Ready to play';$('blackCaption').textContent=gameMode==='ai'&&humanColor==='b'?'You':'Ready to play';$('gameMode').textContent=gameMode==='ai'?`🤖 AI: ${aiDifficulty[0].toUpperCase()+aiDifficulty.slice(1)}`:'🤖 Game mode';start()};if(records.length&&!gameOver)askInGameConfirm('Changing game mode will end this game and start a new one. Continue?',apply);else apply()};
+$('replayGame').onclick=openReplay;$('closeReplay').onclick=()=>$('replayOverlay').classList.remove('show');$('replayOverlay').onclick=e=>{if(e.target===$('replayOverlay'))$('replayOverlay').classList.remove('show')};$('replayStart').onclick=()=>{replayIndex=0;renderReplayBoard()};$('replayEnd').onclick=()=>{replayIndex=replayStates.length-1;renderReplayBoard()};$('replayPrev').onclick=()=>{replayIndex=Math.max(0,replayIndex-1);renderReplayBoard()};$('replayNext').onclick=()=>{replayIndex=Math.min(replayStates.length-1,replayIndex+1);renderReplayBoard()};$('closeResult').onclick=()=>{start()};$('resultOverlay').onclick=e=>{if(e.target===$('resultOverlay'))start()};
+$('description').onclick=()=>{$('descriptionOverlay').classList.add('show')};$('closeDescription').onclick=()=>{$('descriptionOverlay').classList.remove('show')};$('descriptionOverlay').onclick=e=>{if(e.target===$('descriptionOverlay'))$('descriptionOverlay').classList.remove('show')};
+function updateFlipAvailability(){$('flip').disabled=records.length>0||gameOver;$('flip').title=$('flip').disabled?'Board orientation can only be changed before the first move.':'Choose board orientation before the game starts.'}
+$('flip').onclick=()=>{if(records.length>0||gameOver){$('toast').textContent='You can only flip the board before the first move.';return}flipped=!flipped;render();updateFlipAvailability();$('toast').textContent=flipped?'Board flipped.':'Board returned to White’s view.'};
+$('clearSelect').onclick=()=>{selected=null;legal=[];render();$('toast').textContent='Selection cleared.'};
+start();
+</script>
+</body>
+</html>
